@@ -2,6 +2,7 @@ tspan=[0 10]; % tspan=[t0 tfinal]
 x0=[-1 -1]; % x0 is vector of initial conditions
 
 %%
+% dlkfghfklgj
 [t,x]=ode45(@free_fun ,tspan,x0);
 %% Plots for Fress System
 figure(1)
