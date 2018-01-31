@@ -12,7 +12,7 @@ caseFun = input('please idicate the system case');
 % CaseFun=2 is the free system which can be solved with three ODE solvers.
 % CaseFun=3 is the free system which can be solved with three ODE solvers.
 %% Solution command
-[t,x]=ode45(@fun ,tspan,x0,options,caseFun);
+[t,x]=ode15s(@fun ,tspan,x0,options,caseFun);
 
 %% Plots for all Systems
 figure(1)
@@ -56,7 +56,7 @@ end
 legend('Position(m)','Veloctiy(m/s)');
 grid on
 %% Solution command
-[t,x]=ode15s(@fun ,tspan,x0,options,caseFun);
+[t,x]=ode45(@fun ,tspan,x0,options,caseFun);
 figure(3)
 if caseFun == 1
     plot(t,x(:,1),'k',t,x(:,2),'r');
