@@ -8,12 +8,10 @@ function [xprime]=fun(t,x,caseFun)
 % There is no force on free system, so f(t)=0
 % The equation is like: x''(t)+100x(t)=0
 %% For Damped System
-% Damping coefficient is c= 0.8
 % There is no force on damped system, so f(t)=0
 % The equation is like: x''(t)+0.8x'(t)+100x(t)=0
 %% For Damped-Forced System
-% Damping coefficient is c= 0.8
-% There is no force on damped system, so f(t)=asin(wt*t)
+% The force on forced-damped system is f(t)=asin(wt*t)
 % The equation is like: x''(t)+0.8x'(t)+100x(t)=f(t)
 % a=5 and the w=2*t+1
 
