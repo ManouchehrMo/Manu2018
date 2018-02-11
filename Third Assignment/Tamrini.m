@@ -52,8 +52,6 @@ M9=subs(M,zeta,0.9);
 M10=subs(M,zeta,1e-2);
 end
 
-plot(r,M1,'b',r,M2,'k',r,M3,'g',r,M4,'c',r,M5,'r',r,M6,'y',r,M7,'m',r,M8,':k',r,M9,'-r',r,M10,'-k')
-axis([0 2.5 0 5.5])
-grid on
+plot_amplitude(r,M1,M2,M3,M4,M5,M6,M7,M8,M9,M10)
 
-
+print('Z:\Manu2018\NewImageManuGoodView','-dmeta')
