@@ -26,6 +26,7 @@ F(t)=F0*cos(w*t);
 xp = diff(xs, t);
 xpp = diff(xp, t);
 eq=m*xpp+c*xp+k*xs-F(t);
+solve(eq)
 %%
 
 A=(F0*c*w)/((k-m*w^2)^2+(c*w)^2);
