@@ -51,17 +51,18 @@ x0=[0 0 0 0 0 0];
 y0=[0.25 1 0.5 1.25 0.75 1.5]; % initial conditions for positions and velocities for three masses.
 [t1,y1]=ode45(@f_model,tspan,y0);     % the solution using ODE45
 
-[t2,y2]=ode15s(@f_model,tspan,y0);    % the solution using ODE15s
+[t2,y2]=ode15s(@f_model,tspan,y0);  % the solution using ODE15s
+
 
 [t3,y3] = odeRK4(@(t,x) DOF3(t,x,M,K) ,[dt tk] ,y0); % the solution using ODERK4
 y3=y3';
 t3=t3';
 
 figure()
-plot(t1,y1(:,3),'r','LineWidth',1.2);
+plot(t1,y1(:,3),'r','LineWidth',0.5);
 hold on
-plot(t2,y2(:,3),'k','LineWidth',1.2)
-plot(t3,y3(:,3),'-b','LineWidth',1.2)
+plot(t2,y2(:,3),'k','LineWidth',0.5)
+plot(t3,y3(:,3),'-b','LineWidth',0.5)
 grid on
 print('\\maa1.cc.lut.fi\home\h17111\Desktop\Greg\Forth Assignment\ye mesal\plots','-dmeta')
 %% Part 5- The calculation of M_hat=((eigenvector)^transpose)(Mass Matrix)(eigenvector) and K_hat=((eigenvector)^transpose)(Spring constant Matrix)(eigenvector) 
@@ -72,6 +73,7 @@ K_hat=v'*K*v;
 difference= K_hat-d;
 disp(difference);  % to verify that K_hat=eigen values
 eig(K_hat,M_hat);
+
 %% Error
 % rmse_RK45= sqrt(sum(y1(:,1)-y3(:,1)).^2/length(y1(:,1)))
 % rmse_RK15= sqrt(sum(x1(:,1)-x4(:,1)).^2/length(x1(:,1)))
