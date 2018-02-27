@@ -1,4 +1,4 @@
-%% ASSIGNMENT 5- Manouchehr Mohammadi
+%% Manouchehr Mohammadi
 
 close all
 clear all
@@ -36,48 +36,99 @@ F=[0;0;0];                              % Force martice
 Eq=M*Xpp+K*X-F;
 
 %% Part2- The natural frequency
-Nf= sqrt(eig(K,M));              % Natural Frequency in presence of spring1
-
+d=eig(K,M);
+Omega= sqrt(d);                %Natural frequency 
+wn1=Omega(1);                  %Natural frequency for m1
+wn2=Omega(2);                  %Natural frequency for m2
+wn3=Omega(3);                  %Natural frequency for m3            
+wn=[wn1 wn2 wn3];        %Natural frequencies' vector
 %% Part3- We have removed the spring 1
-% K_new=[k2 -k2 0;-k2 k2+k3 -k3;0 -k3 k3];
-K_new=[15e3 -15e3 0; -15e3 25e3 -10e3;0 -10e3 10e3];
-Nf_new=sqrt(eig(K_new,M));       % Natural frequency in absence of spring1
+K_new=[k2 -k2 0;-k2 k2+k3 -k3;0 -k3 k3];
+
+d_1=eig(K_new,M);
+omega_new=sqrt(d_1);
+wn1_1=omega_new(1);
+wn2_1=omega_new(2);
+wn3_1=omega_new(3);
+wn_new=[wn1_1 wn2_1 wn3_1];    %New natural frequencies' vector
 
 %% Part4- Solving the system with ode45,ode15s,odeRK4, & odeSIE
-dt = 0.0015; 
-tk = 1;
-tspan=[0 1];
-x0=[0 0 0 0 0 0];
-y0=[0.25 1 0.5 1.25 0.75 1.5]; % initial conditions for positions and velocities for three masses.
-[t1,y1]=ode45(@f_model,tspan,y0);     % the solution using ODE45
+tspan=0:1e-3:1;
+dt=1e-3;                            %time interval
+tk=1;                               %total time
+x0=[0.5 0.75 0.75 1.25 0.5 1.5];    %initial conditions
+                 
+fun_g = @(t,y) y;                   %fun_g needed to compute the solution using odeSIE
+fun_f=@(t,x) (M^-1)*K*x;            %fun_f needed to compute the solution using odeSIE
 
-[t2,y2]=ode15s(@f_model,tspan,y0);  % the solution using ODE15s
+
+tic
+[t1,x1] = odeRK4(@system_eq,[dt tk] ,x0);    % the solution using odeRK4
+toc
+t1=t1';
+x1=x1';
+
+tic
+[t2,x2,y2]=odeSIE(fun_g,fun_f,[dt tk] ,[0.5 0.75 0.9],[0.75 1.25 1.6]); % the solution using odeSIE
+toc
+t2=t2';
+x2=x2';
+
+tic
+[t3,x3]= ode45(@system_eq,tspan,x0); % the solution using ode45
+toc
+
+tic
+[t4,x4]= ode15s(@system_eq,tspan,x0); % the solution using ode15s
+toc 
+
+rmse_RK45= sqrt(sum(x1(:,1)-x3(:,1)).^2/length(x1(:,1)));        % Root mean sqaure error of odeRK4 vs ode45
+rmse_RK15= sqrt(sum(x1(:,1)-x4(:,1)).^2/length(x1(:,1)));        % Root mean sqaure error of odeRK4 vs ode15s
+
+rmse_SIE45= sqrt(sum(x2(:,1)-x3(:,1)).^2/length(x2(:,1)));       % Root mean sqaure error of odeSIE vs ode45
+rmse_SIE15= sqrt(sum(x2(:,1)-x4(:,1)).^2/length(x2(:,1)));       % Root mean sqaure error of odeSIE vs ode15s
 
 
-[t3,y3] = odeRK4(@(t,x) DOF3(t,x,M,K) ,[dt tk] ,y0); % the solution using ODERK4
-y3=y3';
-t3=t3';
+%% Part 5- The calculation of M_hat=((eigenvector)')(Mass Matrix)(eigenvector) and K_hat=((eigenvector)')(Spring constant Matrix)(eigenvector) 
 
-figure()
-plot(t1,y1(:,3),'r','LineWidth',0.5);
+K_expand=[0 1 0 0 0 0; k1+k2 0 -k2 0 0 0;0 0 0 1 0 0;-k2 0 k2+k3 0 -k3 0;0 0 0 0 0 1;0 0 -k3 0 k3 0];
+
+M_expand=[0 0 0 0 0 0;0 m1 0 0 0 0;0 0 0 0 0 0;0 0 0 m2 0 0;0 0 0 0 0 0;0 0 0 0 0 m3];
+
+[V,EV]=eig(K_expand,M_expand);   %V is the eigenvetors and diagonal of EV corresponds to the eigenvalues
+omega=sqrt(V(1,1));
+X= V(:,1);
+p0=inv(V)*x0';           % modal coordinates p
+
+M_hat= V'*(M_expand*V);
+K_hat= V'*(K_expand*V);
+
+fun_g1=@(t,y) y;
+fun_f1= @(t,p) -1*(M_hat^-1)*K_hat*p;
+
+%   Solving the equation of modal coordinates
+
+[t5,x5] = odeRK4(@modal_coordinates,[dt tk] ,p0); %odeRK4
+t5=t5';
+x5=x5';
+
+[t6,x6,y6]=odeSIE(fun_g,fun_f,[dt tk] ,[-2.85e15 -2.54e15 2.85e15],[-3.23e15 3.23315 2.54e15]); %odeSIE
+t6=t6';
+x6=x6';
+
+[t7,x7]= ode45(@modal_coordinates,tspan,p0); %ode45
+
+[t8,x8]= ode15s(@modal_coordinates,tspan,p0); %ode15s
+
+figure (1)
+
+plot (t3,x3(:,1),'LineWidth',1.3)
 hold on
-plot(t2,y2(:,3),'k','LineWidth',0.5)
-plot(t3,y3(:,3),'-b','LineWidth',0.5)
 grid on
-print('\\maa1.cc.lut.fi\home\h17111\Desktop\Greg\Forth Assignment\ye mesal\plots','-dmeta')
-%% Part 5- The calculation of M_hat=((eigenvector)^transpose)(Mass Matrix)(eigenvector) and K_hat=((eigenvector)^transpose)(Spring constant Matrix)(eigenvector) 
-[v,d]=eig(K,M);
-M_hat=v'*M*v;
-disp(M_hat); % to verify that M_hat=I
-K_hat=v'*K*v;
-difference= K_hat-d;
-disp(difference);  % to verify that K_hat=eigen values
-eig(K_hat,M_hat);
 
-%% Error
-% rmse_RK45= sqrt(sum(y1(:,1)-y3(:,1)).^2/length(y1(:,1)))
-% rmse_RK15= sqrt(sum(x1(:,1)-x4(:,1)).^2/length(x1(:,1)))
-
+figure (2)
+plot (t7,x7(:,1),'LineWidth',1.3)
+grid on
 
 
 
